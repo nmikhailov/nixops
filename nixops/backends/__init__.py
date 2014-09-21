@@ -393,6 +393,7 @@ import nixops.backends.ec2
 import nixops.backends.gce
 import nixops.backends.hetzner
 import nixops.backends.container
+import nixops.backends.linode
 import nixops.resources.ec2_keypair
 import nixops.resources.ssh_keypair
 import nixops.resources.sqs_queue
@@ -419,7 +420,8 @@ def create_definition(xml):
               nixops.backends.ec2.EC2Definition,
               nixops.backends.hetzner.HetznerDefinition,
               nixops.backends.gce.GCEDefinition,
-              nixops.backends.container.ContainerDefinition]:
+              nixops.backends.container.ContainerDefinition,
+              nixops.backends.linode.LinodeDefinition]:
         if target_env == i.get_type():
             return i(xml)
     raise nixops.deployment.UnknownBackend("unknown backend type ‘{0}’".format(target_env))
@@ -432,6 +434,7 @@ def create_state(depl, type, name, id):
               nixops.backends.gce.GCEState,
               nixops.backends.hetzner.HetznerState,
               nixops.backends.container.ContainerState,
+              nixops.backends.linode.LinodeState,
               nixops.resources.ec2_keypair.EC2KeyPairState,
               nixops.resources.ssh_keypair.SSHKeyPairState,
               nixops.resources.sqs_queue.SQSQueueState,
