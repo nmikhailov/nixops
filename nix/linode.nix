@@ -20,7 +20,7 @@ with pkgs.lib;
         '';
       };
 
-      apikey = mkOption {
+      apiKey = mkOption {
         default = "";
         type = types.nullOr types.str;
         description = ''
@@ -31,7 +31,7 @@ with pkgs.lib;
         '';
       };
 
-      instanceType = mkOption {
+      plan = mkOption {
         default = "";
         type = types.str;
         description = ''
@@ -39,7 +39,7 @@ with pkgs.lib;
         '';
       };
 
-      region = mkOption {
+      datacenter = mkOption {
         default = "";
         type = types.str;
         description = ''
@@ -47,6 +47,13 @@ with pkgs.lib;
         '';
       };
 
+      paymentTerm = mkOption {
+        default = "1";
+        type = types.str;
+        description = ''
+          Payment term.
+        '';
+      };
 
     }; 
   };

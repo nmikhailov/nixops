@@ -118,6 +118,7 @@ rec {
           gce = optionalAttrs (v.config.deployment.targetEnv == "gce") v.config.deployment.gce;
           hetzner = optionalAttrs (v.config.deployment.targetEnv == "hetzner") v.config.deployment.hetzner;
           container = optionalAttrs (v.config.deployment.targetEnv == "container") v.config.deployment.container;
+          linode = optionalAttrs (v.config.deployment.targetEnv == "linode") v.config.deployment.linode;
           route53 = v.config.deployment.route53;
           virtualbox =
             let cfg = v.config.deployment.virtualbox; in

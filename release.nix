@@ -82,6 +82,7 @@ rec {
         [ pythonPackages.prettytable
           pythonPackages.boto
           pythonPackages.hetzner
+          pythonPackages.linode
           libcloud
           pythonPackages.sqlite3
         ];

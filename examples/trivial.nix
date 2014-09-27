@@ -3,5 +3,6 @@
 
   machine = 
     { config, pkgs, ... }:
-    { imports = [ ./nix-homepage.nix ]; };
+    { #imports = [ ./nix-homepage.nix ]; 
+    };
 }

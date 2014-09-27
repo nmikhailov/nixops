@@ -4,7 +4,7 @@
       imports = [ ./linode-info.nix ];
       
       deployment.targetEnv = "linode";
-      deployment.linode.region = "london";
-      deployment.linode.instanceType = "Linode 2048";
+      deployment.linode.datacenter = "london";
+      deployment.linode.plan = "Linode 1024";
     };
 }

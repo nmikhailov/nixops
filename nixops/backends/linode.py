@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 
 from nixops.backends import MachineDefinition, MachineState
+import linode
 import nixops.util
 import sys
+from pprint import pprint
 
 class LinodeDefinition(MachineDefinition):
     """Definition of a linode machine."""
@@ -14,6 +17,12 @@ class LinodeDefinition(MachineDefinition):
     def __init__(self, xml):
         MachineDefinition.__init__(self, xml)
         self._target_host = xml.find("attrs/attr[@name='targetHost']/string").get("value")
+
+        x = xml.find("attrs/attr[@name='linode']/attrs")
+        assert x is not None
+        self.api_key = x.find("attr[@name='apiKey']/string").get("value")
+        self.plan = x.find("attr[@name='plan']/string").get("value")
+        self.datacenter = x.find("attr[@name='datacenter']/string").get("value")
 
 
 class LinodeState(MachineState):
@@ -29,12 +38,19 @@ class LinodeState(MachineState):
         MachineState.__init__(self, depl, name, id)
 
     def create(self, defn, check, allow_reboot, allow_recreate):
-        assert isinstance(defn, NoneDefinition)
+        assert isinstance(defn, LinodeDefinition)
         self.set_common_state(defn)
         self.target_host = defn._target_host
 
+        api = linode.Api(defn.api_key)
+        self.log("APIKEY {}".format(pprint(defn)))
+
         # Step 1: Create VM
+        machine_id = self._create_machine(api, defn)
+        
         # Step 2: Create fenix configuration & proper disks
+        # rescue_config_id = _create_rescue_configuration(api, defn)
+
         # Step 3: Boot rescue configuration and connect via lish
         # Step 4: Install base image & disconnect
         # Step 5: Create normal configuration & boot it
@@ -52,3 +68,25 @@ class LinodeState(MachineState):
     def destroy(self, wipe=False):
         # No-op; just forget about the machine.
         return True
+
+    # Linode specific stuff
+
+    def _create_machine(self, api, defn):
+        datacenter_id = next(filter(lambda x: x['ABBR'] == defn.datacenter, 
+            api.avail.datacenters()))['DATACENTERID']
+        plan_id = next(filter(lambda x: x['LABEL'] == defn.plan,
+            api.avail.linodeplans()))['PLANID']
+
+        self.log("Creating linode {} ({}) in datacenter {}({})"
+            .format(defn.datacenter, datacenter_id, defn.plan, defn.plan_id))
+
+        machine_id = api.linode.create(DatacenterId=datacenter_id, PlanId=plan_id, 
+            PaymentTerm=defn.payment_term)['LINODEID']
+
+        self.log("Created linode id {}".format(machine_id))
+
+        return machine_id
+
+    def _create_rescue_configuration(self, api, defn):
+        pass
+
