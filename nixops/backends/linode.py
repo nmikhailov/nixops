@@ -72,10 +72,11 @@ class LinodeState(MachineState):
     # Linode specific stuff
 
     def _create_machine(self, api, defn):
-        datacenter_id = next(filter(lambda x: x['ABBR'] == defn.datacenter, 
-            api.avail.datacenters()))['DATACENTERID']
-        plan_id = next(filter(lambda x: x['LABEL'] == defn.plan,
-            api.avail.linodeplans()))['PLANID']
+        # Check ids
+        datacenter_id = _find_elem('ABBR', defn.datacenter, api.avail.datacenters(),
+            "Datacenter '{}'' unavailable. Possible options: {}")['DATACENTERID']
+        plan_id = _find_elem('LABEL', defn.plan, api.avail.linodeplans(),
+            "Linode plan '{}' unavailable. Possible options: {}.")['PLANID']
 
         self.log("Creating linode {} ({}) in datacenter {}({})"
             .format(defn.datacenter, datacenter_id, defn.plan, defn.plan_id))
@@ -89,4 +90,14 @@ class LinodeState(MachineState):
 
     def _create_rescue_configuration(self, api, defn):
         pass
+
+    # Utility stuff
+
+    def _find_elem(prop, value, lst, error_msg):
+        try
+            (ret,) = filter(lambda x: x[prop] == vals, lst)
+            return ret
+        except ValueError:
+            raise Exception(error_msg.format(value, map(lambda x: x[prop], lst)))
+
 
